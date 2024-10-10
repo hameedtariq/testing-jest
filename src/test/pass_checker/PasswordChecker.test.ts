@@ -59,9 +59,15 @@ describe('PasswordChecker', () => {
     expect(result.reasons).toContain(PasswordError.NO_LOWERCASE);
   });
 
-  it('should return valid if pass contains at least one uppercase and lowercase letter and is longer than 8 characters', () => {
-    const result = sut.check('1234567aA');
+  it('should return valid if pass contains at least one uppercase and lowercase letter, one special character and is longer than 8 characters', () => {
+    const result = sut.check('1234567aA!');
     expect(result.valid).toBe(true);
     expect(result.reasons).toHaveLength(0);
+  });
+
+  it('should return invalid with no special character error if pass does not contain at least one special character', () => {
+    const result = sut.check('12345678Aa');
+    expect(result.valid).toBe(false);
+    expect(result.reasons).toContain(PasswordError.NO_SPECIAL_CHARACTER);
   });
 });
