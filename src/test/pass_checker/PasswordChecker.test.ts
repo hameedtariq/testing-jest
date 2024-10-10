@@ -1,4 +1,7 @@
-import { PasswordChecker } from '@app/pass_checker/PasswordChecker';
+import {
+  PasswordChecker,
+  PasswordError,
+} from '@app/pass_checker/PasswordChecker';
 
 describe('PasswordChecker', () => {
   let sut: PasswordChecker;
@@ -11,43 +14,54 @@ describe('PasswordChecker', () => {
     expect(sut).toBeDefined();
   });
 
-  it('should return true if password is longer than 8 characters', () => {
-    const result = sut.check('12345678aA');
-    expect(result).toBe(true);
-  });
-
-  it('should return false if password is shorter than 8 characters', () => {
-    const result = sut.check('1234567');
-    expect(result).toBe(false);
-  });
-
-  it('should return false if password is empty', () => {
-    const result = sut.check('');
-    expect(result).toBe(false);
-  });
-
-  it('should return false if password is null', () => {
-    const result = sut.check(null);
-    expect(result).toBe(false);
-  });
-
-  it('should return true if it contains at least one uppercase letter', () => {
-    const result = sut.check('1234567aA');
-    expect(result).toBe(true);
-  });
-
-  it('should return false if it does not contain at least one uppercase letter', () => {
+  it('should not return too short reason if password is longer than 8 characters', () => {
     const result = sut.check('12345678');
-    expect(result).toBe(false);
+    expect(result.reasons).not.toContain(PasswordError.TOO_SHORT);
   });
 
-  it('should return true if it contains at least one lowercase letter', () => {
-    const result = sut.check('123456A8a');
-    expect(result).toBe(true);
+  it('should return invalid with too short reason if password is shorter than 8 characters', () => {
+    const result = sut.check('1234567');
+    expect(result.valid).toBe(false);
+    expect(result.reasons).toContain(PasswordError.TOO_SHORT);
   });
 
-  it('should return false if it does not contain at least one lowercase letter', () => {
-    const result = sut.check('123456A8');
-    expect(result).toBe(false);
+  it('should return invalid if password is empty', () => {
+    const result = sut.check('');
+    expect(result.valid).toBe(false);
+    expect(result.reasons).toContain(PasswordError.TOO_SHORT);
+  });
+
+  it('should return invalid with null error message if password is null', () => {
+    const result = sut.check(null);
+    expect(result.valid).toBe(false);
+    expect(result.reasons).toContain(PasswordError.NULL_OR_UNDEFINED);
+  });
+
+  it('should not return uppercase error if pass contains at least one uppercase letter', () => {
+    const result = sut.check('1234567aA');
+    expect(result.reasons).not.toContain(PasswordError.NO_UPPERCASE);
+  });
+
+  it('should return invalid with no uppercase error if pass does not contain at least one uppercase letter', () => {
+    const result = sut.check('12345678');
+    expect(result.valid).toBe(false);
+    expect(result.reasons).toContain(PasswordError.NO_UPPERCASE);
+  });
+
+  it('should not return lowercase error if pass contains atleast one lowercase letter', () => {
+    const result = sut.check('1234567aA');
+    expect(result.reasons).not.toContain(PasswordError.NO_LOWERCASE);
+  });
+
+  it('should return invalid with no lowercase error if pass does not contain at least one lowercase letter', () => {
+    const result = sut.check('12345678A');
+    expect(result.valid).toBe(false);
+    expect(result.reasons).toContain(PasswordError.NO_LOWERCASE);
+  });
+
+  it('should return valid if pass contains at least one uppercase and lowercase letter and is longer than 8 characters', () => {
+    const result = sut.check('1234567aA');
+    expect(result.valid).toBe(true);
+    expect(result.reasons).toHaveLength(0);
   });
 });
