@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@app/*": ["app/*"]
+    },
+    "resolveJsonModule": true
   }
 }
